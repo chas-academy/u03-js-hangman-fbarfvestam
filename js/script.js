@@ -3,17 +3,19 @@
 
 // Array: med spelets alla ord
 const wordList = [
-    "Madrid",
-    "Barcelona",
-    "Sevilla",
-    "Malaga",
-    "Valencia",
-    "Murcia",
-    "Zaragoza",
-    "Bilbao",
-    "Vigo",
-    "Almeria"
+  "madrid",
+  "barcelona",
+  "sevilla",
+  "malaga",
+  "valencia",
+  "murcia",
+  "zaragoza",
+  "bilbao",
+  "vigo",
+  "almeria"
 ];      
+
+let correctLetter = [];
 
 let startGameBtnEl = document.querySelector("#startGameBtn") // DOM-nod: knappen som du startar spelet med
 let msgHolderEl = document.querySelector("#message"); // DOM-nod: Ger meddelande när spelet är över
@@ -53,7 +55,76 @@ function createLetterBoxes() {
 
 // Funktion som körs när du trycker på bokstäverna och gissar bokstav
 
-function clickButton() {
+ function clickButton() { 
+  letterBoxEls = document.querySelectorAll("#letterBoxes > ul > li > input");
+  for (let i = 0; i < letterButtonEls.length; i++) {
+    letterButtonEls[i].addEventListener("click", ()=> {
+        for(let j = 0; j < selectedWord.length; j++) {
+            if (letterButtonEls[i].value.toLowerCase() === selectedWord[j].toLowerCase()) {
+                console.log('Log for when word is correct',letterButtonEls[i].value);
+                letterBoxEls[j].value = selectedWord[j];
+            } 
+        }
+        if (!selectedWord.includes(letterButtonEls[i].value.toLowerCase())) {
+            guesses+=1;
+            hangmanImgEl.src=`images/h${guesses}.png`;
+        }
+    });
+  }
+}
+
+function checkFail ()
+
+
+// Funktion som ropas vid vinst eller förlust, gör olika saker beroende tillståndet
+
+// Funktion som inaktiverar/aktiverar bokstavsknapparna beroende på vilken del av spelet du är på 
+
+
+
+/*
+const clickCheck = (e) => { //sätt funktioner till const då du inte behöver ändra dem 
+  // gameProgress(e.target.value);
+  letterBoxEls = document.querySelectorAll("#letterBoxes > ul > li > input");
+  console.log(e.target.value);
+  for (let i = 0; i < selectedWord.length; i++) {
+    if (e.target.value.toLowerCase() === selectedWord[i].toLowerCase()) {
+      letterBoxEls[i].value = e.target.value;
+      correctLetter.push(e.target.value);
+    } 
+  }
+  testFail(e.currentTarget.value);
+/*   for(let i=0; i < letterButtonEls.length; i++) {
+    for(let j=0; j < selectedWord.length; j++) {
+      if(letterButtonEls[i].value.toLowerCase() != selectedWord[j].toLowerCase()) {
+        alert("hej");
+      }
+    }
+  } */
+/*   if (selectedWord.indexOf(e.target.value) === -1) {
+    alert("hej");
+   // guesses++;
+   // hangmanImgEl.src = `images/h${guesses}.png`;
+
+    //du skulle även behöva ta bort eventListener på knappen här om du vill undvika att det går att klicka igen. 
+  } 
+  e.target.setAttribute("disabled", true);
+  console.log(guesses);
+  console.log(correctLetter);
+};	
+
+function testFail (clickedButton) {
+  if (selectedWord.indexOf(clickedButton) < 0) {
+    alert(clickedButton);
+/*     guesses++; 
+    hangmanImgEl.src = `images/h${guesses}.png`; 
+  }
+
+}
+
+
+
+/* function clickButton() {
   let clickCheck = (e)=> {
      letterBoxEls = document.querySelectorAll("#letterBoxes > ul > li > input");
     console.log(e.target.value);
@@ -73,7 +144,4 @@ function clickButton() {
     letterButtonEls[i].addEventListener("click", clickCheck);
   } console.log(letterBoxEls);
   }
-
-// Funktion som ropas vid vinst eller förlust, gör olika saker beroende tillståndet
-
-// Funktion som inaktiverar/aktiverar bokstavsknapparna beroende på vilken del av spelet du är på 
+ */
