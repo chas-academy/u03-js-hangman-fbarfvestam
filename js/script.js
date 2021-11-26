@@ -1,7 +1,5 @@
-// Globala variabler
-
-
 // Array: med spelets alla ord
+
 const wordList = [
   "madrid",
   "barcelona",
@@ -15,19 +13,23 @@ const wordList = [
   "almeria"
 ];      
 
-let correctLetter = [];
-const maxGuesses = 6;
+// Globala variabler
+
+const maxGuesses = 6; // Maxgissningar för felsvar
 let startGameBtnEl = document.querySelector("#startGameBtn") // DOM-nod: knappen som du startar spelet med
 let msgHolderEl = document.querySelector("#message"); // DOM-nod: Ger meddelande när spelet är över
-const resetButton = document.querySelector(".resetButton");
+const resetButton = document.querySelector(".resetButton"); // Knapp för att resetta spelet
 let guesses = 0; // Number: håller antalet gissningar som gjorts
 let letterButtonEls = document.querySelectorAll("#letterButtons button"); // Array av DOM-noder: Knapparna för bokstäverna
 let letterBoxEls = document.querySelector("#letterBoxes > ul"); // Array av DOM-noder: Rutorna där bokstäverna ska stå
-letterBoxEls.innerHTML="";
+letterBoxEls.innerHTML=""; // Gör boxarna tomma 
 let hangmanImgEl = document.querySelector("#hangman"); // Sträng: sökväg till bild som kommer visas (och ändras) fel svar. t.ex. `/images/h1.png`
 let selectedWord = ""; // Sträng: ett av orden valt av en slumpgenerator från arrayen ovan
+let letterArray = []; // Default värde på arrayen
+let gameFinished = document.querySelector(".endGamemsg");
 
 
+// Eventlistener som lyssnar på klick, då startar startGame funktionen
 
 startGameBtnEl.addEventListener("click", startGame); 
 
@@ -45,7 +47,6 @@ function startGame() {
 
 function generateRandomWord() {
   selectedWord = wordList[Math.floor(Math.random() * wordList.length)];
-  console.log("", selectedWord);
 }
 
 // Funktion som tar fram bokstävernas rutor, antal rutor beror på vilket ord slumptas fram
@@ -54,38 +55,83 @@ function createLetterBoxes() {
    for(let i=0; i < selectedWord.length; i++ ) {
    letterBoxEls.innerHTML+= `<li><input disabled value="_" type="text"></li>`;
   } 
-}
+} 
 
-// Funktion som körs när du trycker på bokstäverna och gissar bokstav
+ // Lägg eventlistener på alla knappar
 
  function clickButton() { 
+
   letterBoxEls = document.querySelectorAll("#letterBoxes > ul > li > input");
+  
+  // For loop som inaktiverar/aktiverar bokstavsknapparna beroende på vilken del av spelet du är på 
+
   for (let i = 0; i < letterButtonEls.length; i++) {
-    guesses=0;
-    letterButtonEls[i].addEventListener("click", ()=> {
-         for(let j = 0; j < selectedWord.length; j++) {
-            if (letterButtonEls[i].value.toLowerCase() === selectedWord[j].toLowerCase()) {
-                console.log('Log for when word is correct',letterButtonEls[i].value);
-                letterBoxEls[j].value = selectedWord[j];
-            } 
-        }
-        if (!selectedWord.includes(letterButtonEls[i].value.toLowerCase())) {
-            guesses+=1;
-            hangmanImgEl.src=`images/h${guesses}.png`;
-            checkLoss();
-          } 
-        },{ once: true }); // Funktion som inaktiverar/aktiverar bokstavsknapparna beroende på vilken del av spelet du är på 
+    letterButtonEls[i].addEventListener("click", checkClick, { once: true });
+  }       
+  
+  
+  
+} // Funktion som körs när du trycker på bokstäverna och gissar bokstav
+    function checkClick() {
+      this.setAttribute("disabled", true);
+
+      for (let i = 0; i < selectedWord.length; i++) {
+
+       if (this.value.toLowerCase() === selectedWord[i].toLowerCase()) { 
+
+         letterBoxEls[i].value = this.value;
+         letterArray.push(letterBoxEls[i].value);
+
+         if (letterArray.length === selectedWord.length) {
+          checkWin();
+         }
+       }
+     }
+      if (!selectedWord.includes(this.value.toLowerCase())) {
+
+        guesses+=1;
+        hangmanImgEl.src=`images/h${guesses}.png`;
+        checkLoss();
+      }
+    }     
+
+    // Funktion som ropas vid vinst
+
+    function checkWin () {
+
+      letterBoxEls = document.querySelectorAll('#letterBoxes > ul > li > input');
+      let boxElsArray = Array.from(letterBoxEls).filter(valueInput => valueInput !== "_")
+
+      for (let i = 0; i < selectedWord.length; i++) {
+
+        boxElsArray[i] = boxElsArray[i].value;
+      }
+      let letterArrayWord = boxElsArray.join("");
+
+      if (letterArrayWord.toLowerCase() === selectedWord.toLowerCase()) {
+
+        setTimeout(function(){
+          msgHolderEl.style.display="flex";
+          gameFinished.innerHTML = "Grattis du vann! :)";
+          
+        }, 1000);
       }
     }
+
+    // Funktion som ropas vid förlust
+
     function checkLoss(){
+
       if (guesses === maxGuesses) {
-         console.log("du förlorade");
-        msgHolderEl.style.display="flex";
-        guesses=0;
-     //   indexOfbtn.removeEventListener("click", ()=> {});
+
+        setTimeout(function(){
+          msgHolderEl.style.display="flex";
+          gameFinished.innerHTML = "Åh nej! Du förlorade :(";
+        }, 1000);
       }
 }
 
+// Funktion som resettar spelet
 
 function restartGame() {
   startGameBtnEl.addEventListener("click", startGame); 
@@ -96,7 +142,9 @@ function restartGame() {
   guesses=0;
   hangmanImgEl.src=`images/h`+ guesses + ".png";
   startGameBtnEl.removeAttribute("disabled");
+  letterArray = [];
+  boxElsArray = [];
+  for (let i = 0; i < letterButtonEls.length; i++) {
+    letterButtonEls[i].removeAttribute("disabled", false);
+  }
 }
-
-// Funktion som ropas vid vinst eller förlust, gör olika saker beroende tillståndet
-
